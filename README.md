@@ -5,7 +5,7 @@ Chat-SDK easy to use gpt request and response chatbot.
 ## Usage
 
 * Create and chat controller
-````sh
+````dart
   final ChatController _chatController = ChatController(
   provider: ChatGptProvider.completions(
     // Writing delay
@@ -30,7 +30,7 @@ Chat-SDK easy to use gpt request and response chatbot.
 
 * Initialize Controller
 
-````sh
+````dart
   controller.initialize((headers) => YOUR_AUTHORIZE_CONFIG);
   ----------------------------------------------------------
   ex: controller.initialize((headers) => headers['Authorization'] =
@@ -40,7 +40,7 @@ Chat-SDK easy to use gpt request and response chatbot.
 
 * Listen its result
 
-````sh
+````dart
     _chatController.hook((message) async {
       setState(() => YOUR_STATE_STRING += message);
     });
@@ -50,7 +50,7 @@ Chat-SDK easy to use gpt request and response chatbot.
 * Send Prompt
 
 
-````sh
+````dart
         final result = await _chatController.sendMessage(
                       ChatGptUserPrompt(content: "YOUR_PROMPT_MESSAGE"),
                        );
