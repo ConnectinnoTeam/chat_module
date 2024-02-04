@@ -1,39 +1,70 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+## Chat-SDK
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
-
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Chat-SDK easy to use gpt request and response chatbot.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+* Create and chat controller
+````sh
+  final ChatController _chatController = ChatController(
+  provider: ChatGptProvider.completions(
+    // Writing delay
+    delay: const Duration(milliseconds: 50),
+    // Timeout duration
+    timeout: const Duration(milliseconds: 500),
+    // Request model sub class of BaseCompletionRequest
+    request: ChatGptRequest.turbo3_50(
+      prompts: [
+        // Default prompts
+        ChatGptSystemPrompt(
+          content: "You are cowboy and you are in the wild west",
+        ),
+      ],
+      temperature: 0.5,
+      // Maximum token amount for request
+      maxToken: 1500,
+    ),
+  ),
+);
+````
 
-```dart
-const like = 'sample';
-```
+* Initialize Controller
 
-## Additional information
+````sh
+  controller.initialize((headers) => YOUR_AUTHORIZE_CONFIG);
+  ----------------------------------------------------------
+  ex: controller.initialize((headers) => headers['Authorization'] =
+      "Bearer YOUR_API_KEY");
+  
+````
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+* Listen its result
+
+````sh
+    _chatController.hook((message) async {
+      setState(() => YOUR_STATE_STRING += message);
+    });
+````
+
+
+* Send Prompt
+
+
+````sh
+        final result = await _chatController.sendMessage(
+                      ChatGptUserPrompt(content: "YOUR_PROMPT_MESSAGE"),
+                       );
+                         
+         Result is a finish reason enum
+         
+         ex:
+           enum FinishReason {
+             maxLength,
+             finished,
+             timeout,
+             error;
+         }
+
+                       
+````
+

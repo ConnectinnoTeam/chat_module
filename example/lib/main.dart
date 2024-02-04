@@ -40,15 +40,20 @@ class _MyHomePageState extends State<MyHomePage> {
   String _text = "";
   final ChatController _chatController = ChatController(
     provider: ChatGptProvider.completions(
+      // Writing delay
       delay: const Duration(milliseconds: 50),
+      // Timeout duration
       timeout: const Duration(milliseconds: 500),
+      // Request model sub class of BaseCompletionRequest
       request: ChatGptRequest.turbo3_50(
         prompts: [
+          // Default prompts
           ChatGptSystemPrompt(
             content: "You are cowboy and you are in the wild west",
           ),
         ],
         temperature: 0.5,
+        // Maximum token amount for request
         maxToken: 1500,
       ),
     ),
@@ -57,8 +62,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _chatController.initialize((headers) => headers['Authorization'] =
-        "Bearer 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");
+    _chatController.initialize(
+        (headers) => headers['Authorization'] = "Bearer YOUR-API-KEY");
     _chatController.hook((message) async {
       setState(() => _text += message);
     });
