@@ -8,8 +8,8 @@ import 'package:chat_module/model/abstract/base_completion_request.dart';
 import 'package:chat_module/model/abstract/base_prompt.dart';
 import 'package:chat_module/model/concrete/response/chat_gpt_response.dart';
 import 'package:chat_module/provider/abstract/chat_provider.dart';
-import 'package:chat_module/utility/extensions/stream_extensions.dart';
 import 'package:chat_module/utility/extensions/string_extensions.dart';
+import 'package:chat_module/utility/transformers/stream_transformers.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -64,9 +64,12 @@ class ChatGptProvider extends ChatProvider {
     try {
       final Completer<FinishReason> completer = Completer();
       final resp = await dio.post(endPoint, data: newRequest.toJson());
-      final stream = resp.data.stream as Stream<List<int>>;
-      stream //
-          .postProcess()
+      final stream = resp.data.stream;
+      stream
+          .transform(uint8Transformer)
+          .transform(const Utf8Decoder())
+          .transform(const LineSplitter())
+          .transform(chatGptResponseTransformer)
           .timeout(
             timeout,
             onTimeout: (_) => completer.complete(FinishReason.timeout),
@@ -85,15 +88,6 @@ class ChatGptProvider extends ChatProvider {
     }
   }
 
-  Map<String, dynamic>? _convertResponse(String str) {
-    try {
-      final map = jsonDecode(str) as Map<String, dynamic>;
-      return map;
-    } catch (e) {
-      return null;
-    }
-  }
-
   @override
   void dispose() {
     _hookFeedStream.close();
@@ -109,19 +103,13 @@ class ChatGptProvider extends ChatProvider {
     });
   }
 
-  void _listen(List<String> event, Completer<FinishReason> completer) {
-    for (var i = 0; i < event.length; i++) {
-      if (_convertResponse(event[i]) == null) {
-        continue;
-      }
-      final map = _convertResponse(event[i])!;
-      final response = ChatGptResponse.fromJson(map);
-      final message = response.choices?.first.delta?.content ?? '';
-      _hookFeedStream.sink.add(message);
-      if (response.choices?.first.finishReason != null) {
-        completer.complete(response.choices!.first.finishReason!);
-      }
+  void _listen(ChatGptResponse? response, Completer<FinishReason> completer) {
+    if (response == null) return;
+    final message = response.choices?.first.delta?.content ?? '';
+    if (response.choices?.first.finishReason != null) {
+      completer.complete(response.choices!.first.finishReason!);
     }
+    _hookFeedStream.sink.add(message);
   }
 
   void _dioConfig(Dio dio) {
