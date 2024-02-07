@@ -15,9 +15,13 @@ StreamTransformer<String, ChatGptResponse?> chatGptResponseTransformer =
     StreamTransformer.fromHandlers(
   handleData: (data, sink) {
     if (data.isNotEmpty) {
-      final jsonString = data.replaceAll('data: ', '');
-      final json = jsonDecode(jsonString);
-      sink.add(ChatGptResponse.fromJson(json));
+      try {
+        final jsonString = data.replaceAll('data: ', '');
+        final json = jsonDecode(jsonString);
+        sink.add(ChatGptResponse.fromJson(json));
+      } catch (e) {
+        sink.add(null);
+      }
     }
     sink.add(null);
   },
