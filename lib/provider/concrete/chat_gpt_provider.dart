@@ -76,6 +76,9 @@ class ChatGptProvider extends ChatProvider {
           )
           .listen((data) => _listen(data, completer))
           .onDone(() {
+        _queue.addJob((_) async {
+          messageHookDone?.call();
+        });
         if (completer.isCompleted) return;
         completer.complete(FinishReason.finished);
       });
@@ -102,6 +105,7 @@ class ChatGptProvider extends ChatProvider {
       }
     });
   }
+
 
   void _listen(ChatGptResponse? response, Completer<FinishReason> completer) {
     if (response == null) return;

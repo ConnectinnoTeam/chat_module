@@ -15,6 +15,8 @@ abstract class ChatProvider {
 
   void Function(String message)? messageHook;
 
+  void Function()? messageHookDone;
+
   Future<FinishReason?> sendMessage<R extends BasePrompt<R>>(Dio dio, R prompt);
 
   void dispose();

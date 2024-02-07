@@ -21,7 +21,11 @@ class ChatController extends ChangeNotifier {
     return provider.sendMessage(_dio, prompt);
   }
 
-  void hook(void Function(String message) hook) {
+  void hook({
+    void Function(String message)? hook,
+    void Function()? onDone,
+  }) {
     provider.messageHook = hook;
+    provider.messageHookDone = onDone;
   }
 }
