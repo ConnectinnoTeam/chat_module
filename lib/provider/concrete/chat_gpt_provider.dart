@@ -120,10 +120,10 @@ class ChatGptProvider extends ChatProvider {
       final map = _convertResponse(event[i])!;
       final response = ChatGptResponse.fromJson(map);
       final message = response.choices?.first.delta?.content ?? '';
-      _hookFeedStream.sink.add(message);
       if (response.choices?.first.finishReason != null) {
         completer.complete(response.choices!.first.finishReason!);
       }
+      _hookFeedStream.sink.add(message);
     }
   }
 
