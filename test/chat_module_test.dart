@@ -33,7 +33,7 @@ void main() async {
   });
 
   controller.initialize((headers) => headers['Authorization'] =
-      "Bearer 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");
+      "Bearer YOUR-API-KEY");
 
   test('adds one to input values', () async {
     await controller.sendMessage(
