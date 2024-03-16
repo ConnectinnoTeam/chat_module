@@ -27,13 +27,13 @@ void main() async {
   );
 
   var str = "";
-  controller.hook((message) {
+  controller.hook(hook: (message) {
     str += message;
     print(str);
   });
 
-  controller.initialize((headers) => headers['Authorization'] =
-      "Bearer YOUR-API-KEY");
+  controller.initialize(
+      (headers) => headers['Authorization'] = "Bearer YOUR-API-KEY");
 
   test('adds one to input values', () async {
     await controller.sendMessage(

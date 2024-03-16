@@ -64,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _chatController.initialize(
         (headers) => headers['Authorization'] = "Bearer YOUR-API-KEY");
-    _chatController.hook((message) async {
+    _chatController.hook(hook: (message) async {
       setState(() => _text += message);
     });
   }
