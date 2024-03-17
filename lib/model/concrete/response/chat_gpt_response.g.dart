@@ -47,6 +47,7 @@ const _$FinishReasonEnumMap = {
   FinishReason.maxLength: 'length',
   FinishReason.finished: 'stop',
   FinishReason.timeout: 'timeout',
+  FinishReason.error: 'error',
 };
 
 Delta _$DeltaFromJson(Map<String, dynamic> json) => Delta(
