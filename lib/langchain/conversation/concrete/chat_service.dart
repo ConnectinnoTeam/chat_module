@@ -76,19 +76,26 @@ class LangChainChatService extends ILangChainService {
 
   void _feedHook(ChatCompletionResponse event,
       Completer<ChatCompletionFinishReason> completer) {
-    if (event.finishReason != null &&
-        event.finishReason != ChatCompletionFinishReason.nullResponse) {
-      _onDone(event.finishReason!);
-      completer.complete(event.finishReason!);
-    }
     _asyncQueue.addJob((_) async {
+      final response = _feedHookDone(event, completer);
       final output = event.text;
-      if (output == null) return;
+      if (output == null || response) return;
       for (var ch in output.expanded()) {
         await Future.delayed(delay);
         _hook?.call(ch);
       }
     });
+  }
+
+  bool _feedHookDone(ChatCompletionResponse event,
+      Completer<ChatCompletionFinishReason> completer) {
+    if (event.finishReason != null &&
+        event.finishReason != ChatCompletionFinishReason.nullResponse) {
+      _onDone(event.finishReason!);
+      completer.complete(event.finishReason!);
+      return true;
+    }
+    return false;
   }
 
   @override
