@@ -72,15 +72,14 @@ class ChatGptProvider extends ChatProvider {
           .transform(chatGptResponseTransformer)
           .timeout(
             timeout,
-            onTimeout: (_) => completer.complete(FinishReason.timeout),
+            onTimeout: (_) => _complete(completer, FinishReason.timeout),
           )
           .listen((data) => _listen(data, completer))
           .onDone(() {
         _queue.addJob((_) async {
           messageHookDone?.call();
         });
-        if (completer.isCompleted) return;
-        completer.complete(FinishReason.finished);
+        _complete(completer, FinishReason.finished);
       });
       return completer.future;
     } catch (e) {
@@ -89,11 +88,6 @@ class ChatGptProvider extends ChatProvider {
       }
       return FinishReason.error;
     }
-  }
-
-  @override
-  void dispose() {
-    _hookFeedStream.close();
   }
 
   void _feedHook(String message) {
@@ -106,14 +100,23 @@ class ChatGptProvider extends ChatProvider {
     });
   }
 
-
   void _listen(ChatGptResponse? response, Completer<FinishReason> completer) {
     if (response == null) return;
     final message = response.choices?.first.delta?.content ?? '';
     if (response.choices?.first.finishReason != null) {
-      completer.complete(response.choices!.first.finishReason!);
+      _complete(completer, response.choices!.first.finishReason!);
     }
     _hookFeedStream.sink.add(message);
+  }
+
+  void _complete(Completer<FinishReason> completer, FinishReason reason) {
+    if (completer.isCompleted) return;
+    completer.complete(FinishReason.finished);
+  }
+
+  @override
+  void dispose() {
+    _hookFeedStream.close();
   }
 
   void _dioConfig(Dio dio) {
