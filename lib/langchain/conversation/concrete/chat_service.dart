@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:async_queue/async_queue.dart';
 import 'package:chat_module/langchain/constants/chat_service_constants.dart';
 import 'package:chat_module/langchain/conversation/abstract/chat_service_interface.dart';
+import 'package:chat_module/langchain/exception/chat_module_exception.dart';
+import 'package:chat_module/langchain/exception/chat_module_exception_type.dart';
 import 'package:chat_module/langchain/response/chat_completion_response.dart';
 import 'package:chat_module/langchain/response/chat_finish_reasons.dart';
 import 'package:chat_module/utility/extensions/string_extensions.dart';
 import 'package:langchain/langchain.dart';
+import 'package:langchain_openai/langchain_openai.dart';
 
 class LangChainChatService extends ILangChainService {
   LangChainChatService({
@@ -44,7 +47,7 @@ class LangChainChatService extends ILangChainService {
           _onDone(response.finishReason!);
           completer.complete(response.finishReason!);
         } else {
-          completer.complete(ChatCompletionFinishReason.error);
+          completer.completeError(_getChatModuleException(e));
         }
       },
     );
@@ -129,5 +132,15 @@ class LangChainChatService extends ILangChainService {
   @override
   void clearMemory() async {
     await memory.clear();
+  }
+
+  ChatModuleException _getChatModuleException(Object e) {
+    return switch (e) {
+      OpenAIClientException() => ChatModuleException.fromChatAIException(e),
+      _ => ChatModuleException(
+          message: e.toString(),
+          type: ChatModuleExceptionType.unknown,
+        ),
+    };
   }
 }
