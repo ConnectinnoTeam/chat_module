@@ -1,0 +1,5 @@
+
+enum ChatModuleExceptionType {
+  chatOpenAI,
+  unknown,
+}
